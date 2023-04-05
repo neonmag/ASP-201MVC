@@ -1,0 +1,26 @@
+﻿@model ASP_201MVC.Models.Home.PassDataModel
+@{
+    ViewData["Title"] = @Model.Header;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@Model.Title</h1>
+
+</div>
+
+<table>
+    <tr>
+        <th>Номер</th>
+        <th>Назва</th>
+        <th>Ціна</th>
+    </tr>
+        @for(int i = 0;i < @Model.Products.Count;i++)
+        {
+           <tr>
+
+            <td>@(i + 1)</td>
+            <td>@Model.Products[i].Name</td>
+            <td>@Model.Products[i].Price.ToString()</td>
+           </tr>
+        }
+</table>

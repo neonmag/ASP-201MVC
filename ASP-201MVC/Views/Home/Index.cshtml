@@ -4,7 +4,16 @@
 
 <div>
     <h1 class="display-4">ASP</h1>
-    <p>Learn about <a href="/Home/Intro">Вступ</a>.</p>
-    <p>Learn about <a href="/Home/Scheme">Схема взаємодії</a>.</p>
-    <p>Learn about <a href="/Home/URL">URL</a>.</p>
+    <h3>Learn about <a href="/Home/Intro">Вступ</a>.</h3>
+    <h3>Learn about <a href="/Home/Scheme">Схема взаємодії</a>.</h3>
+    <h3>Learn about <a href="/Home/URL">URL</a>.</h3>
+    <h3>Learn about <a href="/Home/Razor">Razor</a>.</h3>
+    <!-- Пряме посилання - не чутливе до змін маршрутизації -->
+    <h3>Learn about <a href="/Home/PassData">Моделі передачі даних</a>.</h3>
+    <!-- Тег-помічник - сформує посилання за діючими правилами маршрутизації -->
+    <h3>Learn about <a asp-controller="Home" asp-action="DisplayTemplates">Шаблони відображення даних</a>.</h3>    
+    <!-- Не зазначені атрибути помічника - беруться з оточення: контроллер буде підставлено поточний - Home -->
+    <h3>Learn about <a asp-action="TagHelper">Тег-помічник</a>.</h3>     
+    <h3>Learn about <a asp-controller="User">Сторінка користувача</a>.</h3>
+    <h3>Learn about <a asp-action="FirstHw">Перше дз</a>.</h3>    
 </div>

@@ -16,3 +16,9 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.product-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px
+}

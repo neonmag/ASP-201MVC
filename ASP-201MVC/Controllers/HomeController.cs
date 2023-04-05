@@ -104,6 +104,10 @@ namespace ASP_201MVC.Controllers
         {
             return View();
         }
+        public IActionResult SecondHw()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

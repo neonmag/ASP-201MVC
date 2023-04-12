@@ -1,0 +1,19 @@
+﻿@model ASP_201MVC.Models.Home.User.RegistrationModel
+@using ASP_201MVC.Models.Home.User
+@{
+    ViewData["Title"] = "Congratulations";
+    var registerValidation = ViewData["registerValidation"] as RegisterValidationModel;
+}
+
+<div>
+    <h1 class="display-4">Registration successful</h1>
+</div>
+<h4>Dear <strong>@Model.RealName</strong>!</h4>
+<p>
+    Congratulations on your registration on our website. 
+    Use the data that you provided during registration for authorization.
+</p>
+@if(Model.Avatar is not null)
+{
+    <img src="/avatars/@(ViewData["savedName"])" alt="Avatar" style="max-width:500px" />
+}

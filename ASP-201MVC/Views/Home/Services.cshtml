@@ -1,0 +1,75 @@
+﻿@using ASP_201MVC.Services
+@inject DateService dateService
+@inject TimeService timeService
+@inject StampService stampService
+@{
+	ViewData["Title"]="Сервіси";
+}
+
+<div>
+	<h1 class="display-4">Сервіси ASP</h1>
+</div>
+
+<p>
+	Сервіси (служби, постачальники) - узагальнена назва класів (об'єктів),
+	цо є залежностями (dependencies) для інших класів (об'єктів).
+	Як правило, мова іде про загальновживані класи, залежність від яких
+	спостерігається у багатьох інших класах.
+</p>
+<p>
+	Робота із сервісами складається з кількох етапів: <br/>
+	Оголошення сервісу<br/>
+	Реєстрація сервісу<br/>
+	Впровадження (інжекція) сервісу<br/>
+	Для керування процесами утворення (інстанції) об'єктів та передачі
+	посилання на них (інжекції) у програмі має бути спеціальний модуль - 
+	модуль	інверсії управління. (управління чим? - створенням і знищенням об'єктів)
+</p>
+<p>
+	Через поширеність таких підходів, самі сервіси відокремлюються у папку
+	(Services). Для прикладу створимо декілька ресурсів з відомостей про час.<br/>
+	- Створюємо папку Services у корені проекту<br/>
+	- Створюємо клас <code>DateService</code><br/>
+	- Реєструємо службу: <br/>
+	&esmp; = У Program.cs (або, у старих проектах Startup.cs) знаходимо секцію
+	з <code>builder.Services</code><br/>
+	&esmp; = Додаємо реєстрацію служб:<br/>
+	<code>
+		builder.Services.AddTransient&lt;DateService>();
+		builder.Services.AddScoped&lt;TimeService>();
+	</code><br/>
+	&esmp; = Впровадження рекомендується через конструктори (див. HomeController)<br/>
+	&esmp;&esmp; у класі оголошується readonly поле
+	<code>private readonly DataService _dataService</code>
+	&esmp;&esmp; який ініціалізує поле
+	<code>_dateService = dateService;</code>
+</p>
+<p>
+	Інший спосіб інжекції - через поля (через властивості). Такий спосіб,
+	зокрема, вживається у предсталвеннях за допомогою інструкцій, на зразок
+	<code>&commat;inject DateService dateService</code>
+
+</p>
+<p>
+	date_service(ctrl): @ViewData["date_service"] <br />
+	date_service(view): @dateService.GetMoment() <br />
+	time_service(ctrl): @ViewData["time_service"] <br />
+	time_service(view): @timeService.GetMoment() <br />
+	stamp_service(ctrl): @ViewData["stamp_service"] <br />
+	stamp_service(view): @timeService.GetMoment() <br />
+	<br />
+	date_hashcode(ctrl): @ViewData["date_hashcode"] <i>Різні хеш-коди свідчать про те,</i> <br />
+	date_hashcode(view): @dateService.GetHashCode() <i>Що це різні об'єкти <b>Transient</b></i><br />
+	<hr>
+	time_hashcode(ctrl): @ViewData["time_hashcode"] <i>Однакові хеш-коди свідчать про те,</i> <br />
+	time_hashcode(view): @timeService.GetHashCode() <i>Що це однакові об'єкти, коди міняються з оновленням сторінки <b>Scoped</b></i><br />
+	<hr>
+	stamp_hashcode(ctrl): @ViewData["stamp_hashcode"] <i>Однакові хеш-коди свідчать про те,</i> <br />
+	stamp_hashcode(view): @stampService.GetHashCode() <i>Що це однакові об'єкти, коди не міняються з оновленням сторінки <b>Singleton</b></i><br />
+</p>
+<hr>
+<p>
+	Інверсія залежностей (DIP, літера "D" у SOLID) - це відмова від впровадження залежностей
+	від класів, а перехід на залежності від інтерфейсів (абстракцій).
+
+</p>

@@ -1,4 +1,7 @@
-﻿using ASP_201MVC.Models;
+﻿using ASP_201MVC.Data;
+using ASP_201MVC.Models;
+using ASP_201MVC.Services;
+using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Reflection;
@@ -8,16 +11,53 @@ namespace ASP_201MVC.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly DateService _dateService;
+        private readonly TimeService _timeService;
+        private readonly StampService _stampService;
+        private readonly IHashService _hashService;
+        private readonly DataContext _dataContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, DateService dateService,
+                                                               TimeService timeService,
+                                                               StampService stampService,
+                                                               IHashService hashService,
+                                                               DataContext dataContext)
         {
             _logger = logger;
+            _dateService = dateService;
+            _timeService = timeService;
+            _stampService = stampService;
+            _hashService = hashService;
+            _dataContext = dataContext;
         }
 
         public IActionResult Index()
         {
             return View();
         }
+        public IActionResult ContextD()
+        {
+            ViewData["UsersCount"] = _dataContext.Users.Count();
+            return View("ContextD");
+        }
+        public ViewResult Context()
+        {
+            ViewData["UsersCount"] = _dataContext.Users.Count();
+            return View("Context");
+        }
+        public ViewResult Services()
+        {
+            ViewData["date_service"] = _dateService.GetMoment();
+            ViewData["date_hashcode"] = _dateService.GetHashCode();
+
+            ViewData["time_service"] = _timeService.GetMoment();
+            ViewData["time_hashcode"] = _timeService.GetHashCode();
+
+            ViewData["stamp_service"] = _stampService.GetMoment();
+            ViewData["stamp_hashcode"] = _stampService.GetHashCode();
+            return View();
+        }
+
         public IActionResult Intro()
         {
             return View();

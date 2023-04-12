@@ -7,4 +7,8 @@
     <RootNamespace>ASP_201MVC</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\avatars\" />
+  </ItemGroup>
+
 </Project>

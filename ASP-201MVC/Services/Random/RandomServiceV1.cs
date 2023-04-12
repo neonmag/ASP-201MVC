@@ -4,7 +4,6 @@ namespace ASP_201MVC.Services.Random
 {
     public class RandomServiceV1 : IRandomService
     {
-        private readonly String chars = "0123456789abcdefghijklmnopqrstuvwxyz";
         private readonly String safeChars = new String(
             Enumerable.Range(20, 107).Select(x => (char)x).ToArray());
         private readonly System.Random random = new();
@@ -12,14 +11,13 @@ namespace ASP_201MVC.Services.Random
         public String ConfirmCode(int length)
         {
 
-            StringBuilder sb = new StringBuilder(length);
-
+            StringBuilder code = new StringBuilder(length);
+            Guid testId = new Guid();
             for (int i = 0; i < length; i++)
             {
-                int index = random.Next(chars.Length);
-                sb.Append(chars[index]);
+                code.Append(testId.ToString()[random.Next(testId.ToString().Length)]);
             }
-            return sb.ToString();
+            return code.ToString();
         }
         public String RandomString(int length)
         {

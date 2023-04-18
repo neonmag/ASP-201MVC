@@ -6,6 +6,7 @@ using ASP_201MVC.Services.KDF;
 using ASP_201MVC.Data;
 using ASP_201MVC.Services.Random;
 using ASP_201MVC.Data.Entity;
+using Microsoft.Extensions.Primitives;
 
 namespace ASP_201MVC.Controllers
 {
@@ -138,6 +139,46 @@ namespace ASP_201MVC.Controllers
             ViewData["isModelValid"] = isModelValid;
             // способ перейти на View под другим именем
             return View("Registration");
+        }
+        [HttpPost]
+        public String AuthUser()
+        {
+            // альтернатертивний до моделей спосіб отримання параметрів запиту
+            StringValues loginValues = Request.Form["user-login"];
+            // колекція loginValues формується при будь-якому ключі, але для
+            // неправильних (відсутніх) ключів вона порожня
+            if (loginValues.Count == 0)
+            {
+                // немає логіну у складі полів
+                return "Missed required parameter: user-login";
+            }
+            String login = loginValues[0] ?? "";
+
+            StringValues passwordValues = Request.Form["user-password"];
+            // колекція loginValues формується при будь-якому ключі, але для
+            // неправильних (відсутніх) ключів вона порожня
+            if (passwordValues.Count == 0)
+            {
+                // немає логіну у складі полів
+                return "Missed required parameter: user-password";
+            }
+            String password = passwordValues[0] ?? "";
+
+            //шукаємо користувача за логіном
+            User? user = _dataContext.Users.Where(u => u.Login == login).FirstOrDefault();
+            if (user is not null)
+            {
+                // якщо знайшли - перевіряємо пароль(derived key)
+                if (user.PasswordHash == _kdfService.GetDerivedKey(password, user.PasswordSalt))
+                {
+                    //дані перевірені - користувач автентифікований
+                    HttpContext.Session.SetString("authUserId", user.Id.ToString());
+                    return "OK";
+                }
+
+            }
+
+            return "Авторизацію відхилено";
         }
     }
 }

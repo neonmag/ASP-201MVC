@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using ASP_201MVC.Data.Entity
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -28,12 +29,29 @@
                     </ul>
                 </div>
             </div>
-            <button title="Login" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-right:20px">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z" />
-                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+            @if (Context.Items["authUser"] is User authUser)
+            {
+                <img src="~/avatars/@(authUser.Avatar)"
+                alt="Ava"
+                title="@authUser.Login"
+                style="max-width: 40px; max-height: 40px; border-radius: 50%">  
+                <a asp-controller="User" asp-action="Logout" class="mx-3" title="Вийти">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                    fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
                 </svg>
-            </button>
+                </a>
+            }
+            else
+            {
+                <button title="Login" type="button" class="btn btn-outline-primary mx-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z" />
+                        <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+                    </svg>
+                </button>
+            }
         </nav>
     </header>
     <div class="container">
@@ -51,7 +69,7 @@
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form>
+                <form asp-controller="User" asp-action="AuthUser" method="post">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Authentication</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -68,18 +86,63 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="login-button" class="btn btn-primary">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
     <script>
-        var myModal = document.getElementById('myModal')
-        var myInput = document.getElementById('myInput')
-        myModal.addEventListener('shown.bs.modal', function () {
-            myInput.focus()
-        })
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginButton = document.getElementById("login-button");
+            if (!loginButton) throw "login-button input not found";
+            loginButton.addEventListener("click", loginButtonClick);
+        });
+        function loginButtonClick() {
+            const loginInput = document.getElementById("user-login");
+            if (!loginInput) throw "user-login input not found";
+            const login = loginInput.value;
+            const passwordInput = document.getElementById("user-password");
+            if (!passwordInput) throw "user-password input not found";
+            const password = passwordInput.value;
+
+            window.fetch("/User/AuthUser", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `user-login=${login}&user-password=${password}`
+            })
+                .then(r => r.text())
+                .then(t => {
+                    console.log(t);
+                    if (t === "OK") {
+                        // обновляем страницу для авторизации
+                        window.location.reload();
+                    }
+                    else {
+                        var alertDiv = document.createElement("div");
+                        // добавляем классы и роль к элементу div
+                        alertDiv.className = "alert alert-danger";
+                        alertDiv.setAttribute("role", "alert");
+                        // добавляем текстовое содержимое в элемент div
+                        alertDiv.textContent = t;
+                        // находим элемент, в который нужно добавить созданный элемент div
+                        var contentDiv = document.getElementsByClassName("container")[0];
+                        // добавляем созданный элемент div в качестве последнего дочернего элемента контентного div
+                        if (contentDiv !== null) {
+                            // удаляем созданный элемент div через 5 секунд
+                            setTimeout(removeAlert, 5000);
+                            function removeAlert() {
+                                alertDiv.remove();
+                            }
+                            contentDiv.appendChild(alertDiv);
+                        } else {
+                            console.error("Элемент не найден!");
+                        }
+                    }
+                });
+        }
     </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

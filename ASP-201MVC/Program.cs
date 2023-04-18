@@ -1,4 +1,5 @@
 using ASP_201MVC.Data;
+using ASP_201MVC.Middleware;
 using ASP_201MVC.Services;
 using ASP_201MVC.Services.Hash;
 using ASP_201MVC.Services.KDF;
@@ -41,6 +42,15 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -57,6 +67,11 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseSession();
+
+app.UseSessionAuth();
+
+app.UseMiddleware<SessionAuthMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

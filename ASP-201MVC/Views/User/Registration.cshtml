@@ -7,7 +7,7 @@
 <div>
     <h1 class="display-4">Registration of new user</h1>
 </div>
-<form method="post" asp-controller="User" asp-action="Register">
+<form method="post" asp-controller="User" asp-action="Register" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="Login">Login</label>
         <input type="text" class="form-control" asp-for="Login" aria-describedby="loginHelp" placeholder="Enter login">

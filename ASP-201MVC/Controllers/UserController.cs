@@ -180,5 +180,11 @@ namespace ASP_201MVC.Controllers
 
             return "Авторизацію відхилено";
         }
+        public IActionResult Logout()
+        {
+            HttpContext.Session.SetString("authUserId", string.Empty);
+            Response.Redirect("../");
+            return View("Index");
+        }
     }
 }

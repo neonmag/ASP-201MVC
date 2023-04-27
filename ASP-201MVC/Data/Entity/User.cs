@@ -13,6 +13,9 @@
         public DateTime		RegisterDt		{ get; set; }
 		public DateTime?	LastEnter		{ get; set; }
         public String?		EmailCode		{ get; set; }
+        public Boolean IsEmailPublic { get; set; }
+        public Boolean isRealNamePublic { get; set; }
+        public Boolean IsDateTimePublic { get; set; }
 
     }
 }

@@ -17,45 +17,21 @@ namespace ASP_201MVC.Controllers
         private readonly StampService _stampService;
         private readonly IHashService _hashService;
         private readonly DataContext _dataContext;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger, DateService dateService,
-                                                               TimeService timeService,
-                                                               StampService stampService,
-                                                               IHashService hashService,
-                                                               DataContext dataContext)
+        public HomeController(ILogger<HomeController> logger, DateService dateServise, TimeService timeServise, StampService stampServise, IHashService hashServise, DataContext dataContext = null, IConfiguration configuration = null)
         {
             _logger = logger;
-            _dateService = dateService;
-            _timeService = timeService;
-            _stampService = stampService;
-            _hashService = hashService;
+            _dateService = dateServise;
+            _timeService = timeServise;
+            _stampService = stampServise;
+            _hashService = hashServise;
             _dataContext = dataContext;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
         {
-            return View();
-        }
-        public IActionResult ContextD()
-        {
-            ViewData["UsersCount"] = _dataContext.Users.Count();
-            return View("ContextD");
-        }
-        public ViewResult Context()
-        {
-            ViewData["UsersCount"] = _dataContext.Users.Count();
-            return View("Context");
-        }
-        public ViewResult Services()
-        {
-            ViewData["date_service"] = _dateService.GetMoment();
-            ViewData["date_hashcode"] = _dateService.GetHashCode();
-
-            ViewData["time_service"] = _timeService.GetMoment();
-            ViewData["time_hashcode"] = _timeService.GetHashCode();
-
-            ViewData["stamp_service"] = _stampService.GetMoment();
-            ViewData["stamp_hashcode"] = _stampService.GetHashCode();
             return View();
         }
 
@@ -63,101 +39,112 @@ namespace ASP_201MVC.Controllers
         {
             return View();
         }
-        public IActionResult Scheme()
-        {
-            ViewBag.bagdata = "Data in ViewBag";     // Способи передачі даних
-            ViewData["data"] = "Data in ViewData";   // до представлення
 
-            return View();
-        }
-        public IActionResult Razor()
+        public IActionResult URL()
         {
             return View();
         }
-        public ViewResult Middleware()
+
+
+        public ViewResult Sessions([FromQuery(Name = "session-attr")] String? sessionAttr)
         {
-            return View();
-        }
-        public IActionResult Sessions([FromQuery(Name = "session-attr")]String? sessionsAttr)
-        {
-            if(sessionsAttr is not null)
+            if (sessionAttr is not null)
             {
-                HttpContext.Session.SetString("session-attribute", sessionsAttr);
+                HttpContext.Session.SetString("session-attribute", sessionAttr);
             }
             return View();
         }
-        public IActionResult FirstHw()
+
+        public ViewResult EmailConfirmation()
         {
-            Models.Home.PassDataModel model = new()
-            {
-                Header = "Перше дз",
-                Title = "ПЕРШЕ ДЗ",
-                Products = new()
-                {
-                    new() {Name = "Кабель", Price = 20,            Image="img1.png"         },
-                    new() {Name = "Миша", Price = 420,             Image="img2.png"         },
-                    new() {Name = "Серветки", Price = 14,          Image="img3.png"         },
-                    new() {Name = "Наліпка", Price = 45,           Image="img1.png"         },
-                    new() {Name = "USB Ліхтарик", Price = 2100.22, Image="img4.jpg"         },
-                    new() {Name = "Акумулятор ААА", Price = 54320, Image="img2.png"         },
-                    new() {Name = "OC Windows Home", Price = 7.50, Image="img3.png"         }
-                }
-            };
-            return View(model);
-        }
-        public IActionResult URL()
-        {
-            ViewBag.bagdata = "Data in ViewBag";     // Способи передачі даних
-            ViewData["data"] = "Data in ViewData";   // до представлення
+            ViewData["config"] = _configuration["Smtp:Gmail:Host"];
             return View();
         }
-        public IActionResult PassData()
+
+        public IActionResult TagHelpers()
         {
-            Models.Home.PassDataModel model = new()
-            {
-                Header = "Моделі",
-                Title = "Моделі передачі даних",
-                Products = new()
-                {
-                    new() {Name = "Кабель", Price = 20,            Image="img1.png"         },
-                    new() {Name = "Миша", Price = 420,             Image="img2.png"         },
-                    new() {Name = "Серветки", Price = 14,          Image="img3.png"         },
-                    new() {Name = "Наліпка", Price = 45,           Image="img1.png"         },
-                    new() {Name = "USB Ліхтарик", Price = 2100.22, Image="img4.jpg"         },
-                    new() {Name = "Акумулятор ААА", Price = 54320, Image="img2.png"         },
-                    new() {Name = "OC Windows Home", Price = 7.50, Image="img3.png"         }
-                }
-            };
-            return View(model);
+            return View();
         }
+
+        public IActionResult Middleware()
+        {
+            return View();
+        }
+
         public IActionResult DisplayTemplates()
         {
             Models.Home.PassDataModel model = new()
             {
-                Header = "Шаблони",
-                Title = "Шаблони відображення даних",
+                Header = "DisplayTemplates",
+                Title = "Data Display Templates",
                 Products = new()
                 {
-                    new() {Name = "Кабель", Price = 20,            Image="img1.png"         },
-                    new() {Name = "Миша", Price = 420,             Image="img2.png"         },
-                    new() {Name = "Серветки", Price = 14,          Image="img3.png"         },
-                    new() {Name = "Наліпка", Price = 45,           Image="img1.png"         },
-                    new() {Name = "USB Ліхтарик", Price = 2100.22, Image="img4.jpg"         },
-                    new() {Name = "Акумулятор ААА", Price = 54320, Image="img2.png"         },
-                    new() {Name = "OC Windows Home", Price = 7.50, Image="img3.png"         }
+                    new() { Name = "Зарядний кабель",       Image = "1.png", Price = 210 },
+                    new() { Name = "Маніпулятор 'миша'",    Image = "2.png", Price = 399.50 },
+                    new() { Name = "Наліпка 'Smiley'",      Image = "3.png", Price = 2.95 },
+                    new() { Name = "Серветки для монітору", Image = "4.png", Price = 100 },
+                    new() { Name = "USB ліхтарик",          Image = "5.png", Price = 49.50 },
+                    new() { Name = "Аккумулятор ААА",       Image = "6.png", Price = 280 },
+                    new() { Name = "ОС Windows Home",       Image = "7.png", Price = 1250 },
                 }
             };
             return View(model);
         }
-        public IActionResult Privacy()
+
+        public IActionResult PassData()
         {
-            return null;
+            Models.Home.PassDataModel model = new()
+            {
+                Header = "Models",
+                Title = "Data Transfer models",
+                Products = new()
+                {
+                    new() { Name = "Зарядний кабель", Price = 210 },
+                    new() { Name = "Маніпулятор 'миша'", Price = 399.50 },
+                    new() { Name = "Наліпка 'Smiley'", Price = 2.95 },
+                    new() { Name = "Серветки для монітору", Price = 100 },
+                    new() { Name = "USB ліхтарик", Price = 49.50 },
+                    new() { Name = "Аккумулятор ААА", Price = 280 },
+                    new() { Name = "ОС Windows Home", Price = 1250 },
+                }
+            };
+            return View(model);
         }
-        public IActionResult TagHelper()
+
+        public ViewResult Servises()
+        {
+            ViewData["data_servise"] = _dateService.GetMoment();
+            ViewData["data_hashcode"] = _dateService.GetHashCode();
+
+            ViewData["time_servise"] = _timeService.GetMoment();
+            ViewData["time_hashcode"] = _timeService.GetHashCode();
+
+            ViewData["stamp_servise"] = _stampService.GetMoment();
+            ViewData["stamp_hashcode"] = _stampService.GetHashCode();
+
+            ViewData["hash_service"] = _hashService.Hash("123");
+            return View();
+        }
+
+        public IActionResult Scheme()
+        {
+            ViewBag.bagdata = "Data in ViewBag"; // способы передачи данных
+            ViewData["data"] = "Data in ViewData"; // к представлению
+            return View();
+        }
+
+        public IActionResult DataContext()
+        {
+            ViewData["UsersCount"] = _dataContext.Users.Count();
+            return View();
+        }
+
+        public IActionResult Privacy()
         {
             return View();
         }
-        public IActionResult SecondHw()
+
+        public IActionResult Razor()
         {
             return View();
         }

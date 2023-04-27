@@ -1,9 +1,12 @@
 using ASP_201MVC.Data;
 using ASP_201MVC.Middleware;
 using ASP_201MVC.Services;
+using ASP_201MVC.Services.Email;
 using ASP_201MVC.Services.Hash;
 using ASP_201MVC.Services.KDF;
 using ASP_201MVC.Services.Random;
+using ASP_201MVC.Services.Validation;
+using ASP_201MVC.Services.Email;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 
@@ -19,6 +22,8 @@ builder.Services.AddSingleton<StampService>();
 builder.Services.AddSingleton<IHashService, Md5HashService>();
 builder.Services.AddSingleton<IRandomService, RandomServiceV1>();
 builder.Services.AddSingleton<IKdfService, HashKdService>();
+builder.Services.AddSingleton<IValidationService, ValidationServiceV1>();
+builder.Services.AddSingleton<IEmailService, GmailService>();
 
 //builder.Services.AddDbContext<DataContext>(options =>
 //    options.UseSqlServer(
@@ -69,9 +74,7 @@ app.UseRouting();
 app.UseAuthorization();
 app.UseSession();
 
-app.UseSessionAuth();
-
-app.UseMiddleware<SessionAuthMiddleware>();
+app.UseSessionAuth(); //app.UseMiddleware<SessionAuthMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

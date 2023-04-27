@@ -6,7 +6,10 @@ using ASP_201MVC.Services.KDF;
 using ASP_201MVC.Data;
 using ASP_201MVC.Services.Random;
 using ASP_201MVC.Data.Entity;
+using ASP_201MVC.Services.Validation;
 using Microsoft.Extensions.Primitives;
+using System.Security.Claims;
+using ASP_201MVC.Models.User;
 
 namespace ASP_201MVC.Controllers
 {
@@ -16,13 +19,15 @@ namespace ASP_201MVC.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly DataContext _dataContext;
         private readonly IRandomService _randomService;
+        private readonly IValidationService _validationService;
         private readonly IKdfService _kdfService;
-        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService)
+        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService, IValidationService validationService)
         {
             _hashService = hashService;
             _logger = logger;
             _dataContext = dataContext;
             _randomService = randomService;
+            _validationService = validationService;
             _kdfService = kdfService;
         }
         public IActionResult Index()
@@ -41,6 +46,11 @@ namespace ASP_201MVC.Controllers
             if (String.IsNullOrEmpty(registrationModel.Login))
             {
                 registerValidation.LoginMessage = "Login field can't be empty";
+                isModelValid = false;
+            }
+            if(_dataContext.Users.Any(u => u.Login == registrationModel.Login))
+            {
+                registerValidation.LoginMessage = "Login is busy";
                 isModelValid = false;
             }
             if (String.IsNullOrEmpty(registrationModel.Password))
@@ -109,7 +119,7 @@ namespace ASP_201MVC.Controllers
                 }
             }
 
-            if (isModelValid)
+            if (!isModelValid)
             {
                 String salt = _randomService.RandomString(16);
                 User user = new()
@@ -180,11 +190,83 @@ namespace ASP_201MVC.Controllers
 
             return "Авторизацію відхилено";
         }
+        public IActionResult Profile([FromRoute]String id)
+        {
+            //_logger.LogInformation(id);
+            User? user = _dataContext.Users.FirstOrDefault(u => u.Login == id);
+            if (user is not null)
+            {
+                Models.User.ProfileModel model = new(user);
+                return View(model);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        public IActionResult Update([FromBody] UpdateRequestModel model)
+        {
+            UpdateResponseModel responseModel = new();
+            try
+            {
+                if (model is null) throw new Exception("No or empty data");
+                if (HttpContext.User.Identity?.IsAuthenticated == false)
+                {
+                    throw new Exception("UnAuthenticated");
+                }
+                User? user = _dataContext.Users.Find(
+                    Guid.Parse(
+                        HttpContext.User.Claims
+                        .First(c => c.Type == ClaimTypes.Sid)
+                        .Value
+                ));
+                if (user is null) throw new Exception("UnAuthorized");
+                switch (model.Field)
+                {
+                    case "realname":
+                        if (_validationService.Validate(model.Value, ValidationTerms.RealName))
+                        {
+                            user.RealName = model.Value;
+                            _dataContext.SaveChanges();
+                        }
+                        else throw new Exception(
+                                $"Validation error: field '{model.Field}' with value '{model.Value}'");
+                        break;
+                    case "email":
+                        if (_validationService.Validate(model.Value, ValidationTerms.Email))
+                        {
+                            user.Email = model.Value;
+                            _dataContext.SaveChanges();
+                        }
+                        else throw new Exception(
+                                $"Validation error: field '{model.Field}' with value '{model.Value}'");
+                        break;
+                    default:
+                        throw new Exception("Invalid 'Field' attribute");
+                }
+                responseModel.Status = "OK";
+                responseModel.Data = $"Field '{model.Field}' updated by value '{model.Value}'";
+            }
+            catch (Exception ex)
+            {
+                responseModel.Status = "Error";
+                responseModel.Data = ex.Message;
+            }
+
+            return Json(responseModel);
+
+            /* Метод для оновлення даних про користувача
+             * Приймає асинхронні запити з JSON даними, повертає JSON
+             * із результатом роботи.
+             * Приймає дані = описуємо модель цих даних
+             * Повертає дані = описуємо модель
+             */
+        }
         public IActionResult Logout()
         {
-            HttpContext.Session.SetString("authUserId", string.Empty);
+            HttpContext.Session.Remove("authUserId");
             Response.Redirect("../");
-            return View("Index");
+            return RedirectToAction("Index","Home");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ASP_201MVC.Data;
 using ASP_201MVC.Data.Entity;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 
 namespace ASP_201MVC.Middleware
 {
@@ -28,6 +29,18 @@ namespace ASP_201MVC.Middleware
                     if(authUser is not null)
                     {
                         context.Items.Add("authUser", authUser);
+                        Claim[] claims = new Claim[]
+                        {
+                            new Claim(ClaimTypes.Sid,userId),
+                            new Claim(ClaimTypes.Name, authUser.RealName),
+                            new Claim(ClaimTypes.NameIdentifier, authUser.Login),
+                            new Claim(ClaimTypes.UserData, authUser.Avatar ?? String.Empty)
+                        };
+                        var principal = new ClaimsPrincipal(
+                            new ClaimsIdentity(
+                                claims,
+                                nameof(SessionAuthMiddleware)));
+                        context.User = principal;
                     }
                 }
                 catch(Exception ex)

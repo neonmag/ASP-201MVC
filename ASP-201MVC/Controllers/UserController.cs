@@ -9,6 +9,7 @@ using ASP_201MVC.Data.Entity;
 using ASP_201MVC.Services.Validation;
 using Microsoft.Extensions.Primitives;
 using System.Security.Claims;
+using ASP_201MVC.Models;
 using ASP_201MVC.Models.User;
 
 namespace ASP_201MVC.Controllers
@@ -192,17 +193,24 @@ namespace ASP_201MVC.Controllers
         }
         public IActionResult Profile([FromRoute]String id)
         {
-            //_logger.LogInformation(id);
+            _logger.LogInformation(id);
             User? user = _dataContext.Users.FirstOrDefault(u => u.Login == id);
             if (user is not null)
             {
-                Models.User.ProfileModel model = new(user);
+                ProfileModel model = new(user);
+                // достаем ведомости про аутентификацию
+                if (HttpContext.User.Identity is not null && HttpContext.User.Identity.IsAuthenticated)
+                {
+                    String userLogin = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier)
+                    .Value;
+                    if (userLogin == user.Login) // Профиль - свой (персональный)
+                    {
+                        model.IsPersonal = true;
+                    }
+                }
                 return View(model);
             }
-            else
-            {
-                return NotFound();
-            }
+            else return NotFound();
         }
         public IActionResult Update([FromBody] UpdateRequestModel model)
         {
@@ -261,6 +269,51 @@ namespace ASP_201MVC.Controllers
              * Приймає дані = описуємо модель цих даних
              * Повертає дані = описуємо модель
              */
+        }
+        [HttpPost]
+        public JsonResult ConfirmEmail([FromBody] string emailCode)
+        {
+            StatusDataModel model = new();
+            if(String.IsNullOrEmpty(emailCode))
+            {
+                model.Status = "406";
+                model.Data = "Empty code not acceptable";
+            }
+            else if(HttpContext.User.Identity?.IsAuthenticated == false)
+            {
+                model.Status = "401";
+                model.Data = "Unauthenticated";
+            }
+            else
+            {
+                User? user = _dataContext.Users.Find(
+                    Guid.Parse(HttpContext.User.Claims
+                    .First(c => c.Type == ClaimTypes.Sid)
+                    .Value));
+                if(user is null)
+                {
+                    model.Status = "403";
+                    model.Data = "Forbidden (unAuth)";
+                }
+                else if(user.EmailCode is null)
+                {
+                    model.Status = "208";
+                    model.Data = "Already Confirmed";
+                }
+                else if(user.EmailCode != emailCode)
+                {
+                    model.Status = "406";
+                    model.Data = "Code not Accepted";
+                }
+                else
+                {
+                    user.EmailCode = null;
+                    _dataContext.SaveChanges();
+                    model.Status = "200";
+                    model.Data = "OK";
+                }
+            }
+            return Json(model);
         }
         public IActionResult Logout()
         {

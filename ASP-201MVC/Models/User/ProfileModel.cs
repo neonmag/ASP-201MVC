@@ -14,6 +14,8 @@ namespace ASP_201MVC.Models.User
         public DateTime RegisterDt { get; set; }
         public DateTime? LastEnterDt { get; set; }
         public bool IsDatetimesPublic { get; set; }
+        public bool isEmailPublic { get; set; }
+        public bool IsEmailConfirmed { get; set; }
         // Является ли данный провиль персональным (для аутентифицированого пользователя)
         public bool IsPersonal { get; set; }
 
@@ -38,6 +40,7 @@ namespace ASP_201MVC.Models.User
 
                 thisProp?.SetValue(this, prop.GetValue(user));
             }
+            this.IsEmailConfirmed = user.EmailCode is null;
         }
     }
 }

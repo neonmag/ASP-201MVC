@@ -100,6 +100,20 @@
                             <div class="col-sm-1">
                                 @if (Model.IsPersonal)
                                 {
+                                    if(Model.IsEmailConfirmed)
+                                    {
+                                        <img src="~/img/icons/person-check.svg" alt="+"
+                                        class="mb-1 filter-color-green"/>
+                                    }
+                                    else
+                                    {
+                                        <img src="~/img/icons/person-check.svg" alt="-"
+                                     class="mb-1 filter-color-candy"
+                                        role="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal"/>
+
+                                    }
                                     <img src="~/img/icons/pencil.svg" role="button" data-ref-field="email" />
                                 }
                             </div>
@@ -217,11 +231,35 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Введіть код з емаіл</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group mb-3">
+  <span class="input-group-text" id="confirm-addon3">Код:</span>
+  <input type="text" class="form-control" id="confirm-email-input" aria-describedby="confirm-addon" placeholder="З пошти">
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
+        <button type="button" class="btn btn-primary" id="confirm-email-button">Підтвердити</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         for (let pencil of document.querySelectorAll("[data-ref-field]")) {
             pencil.addEventListener("click", editClick);
         }
+        const confirmEmailButton = document.getElementById("confirm-email-button");
+        if(confirmEmailButton) confirmEmailButton.addEventListener("click", confirmEmailButtonClick);
+        else console.error("Element not fount: 'confirm-email-button'");
     });
     function editClick(e) {
         const targetId = e.target.getAttribute("data-ref-field");
@@ -292,4 +330,45 @@
         }
 
     }
+    function editingKeydown(e) {
+
+        if(e.key == "Enter") {
+
+            e.target.blur();
+
+        }
+
+    }
+    function confirmEmailButtonClick()
+    {
+        const confirmEmailInput = document.getElementById("confirm-email-input");
+        if (!confirmEmailInput) throw "Element not fount: 'confirm-email-input'";
+        const emailCode = confirmEmailInput.value;
+        if(emailCode.length === 0)
+        {
+            alert("Код не може бути порожним");
+            return;
+        }
+        window.fetch("/User/ConfirmEmail", {
+
+method: "POST",
+headers: {
+    "Content-Type": "application/json"
+},
+        body: JSON.stringify(emailCode)})
+        .then(r => r.json())
+        .then(j =>
+        {
+            console.log(j);
+            if(j.status == "200")
+            {
+                window.location.reload();
+            }
+            else
+            {
+                alert(j.data);
+            }
+        });
+    }
+
 </script>

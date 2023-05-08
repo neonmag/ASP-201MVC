@@ -110,13 +110,14 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <br />
-@if (ViewData["registrationModel"] != null)
+@if (ViewData["registrationModel"] is not null)
 {
     // была передача данных
     var registrationModel = ViewData["registrationModel"] as RegistrationModel;
-    if (Convert.ToBoolean(ViewData["isModelValid"]) == false)
+    registerValidation = ViewData["registerValidation"] as RegisterValidationModel;
+    foreach (var item in registerValidation)
     {
-        foreach (var item in registerValidation)
+        if (item is not null)
         {
             <div class="alert alert-primary" role="alert">
                 @item

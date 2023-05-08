@@ -53,9 +53,9 @@ namespace ASP_201MVC.Controllers
                 registerValidation.LoginMessage = "Login field can't be empty";
                 isModelValid = false;
             }
-            if(_dataContext.Users.Any(u => u.Login == registrationModel.Login))
+            if (_dataContext.Users.Any(u => u.Login == registrationModel.Login))
             {
-                registerValidation.LoginMessage = "Login is busy";
+                registerValidation.PasswordMessage = "Login field can't be not unique (this login is already used)";
                 isModelValid = false;
             }
             if (String.IsNullOrEmpty(registrationModel.Password))
@@ -79,18 +79,15 @@ namespace ASP_201MVC.Controllers
                 registerValidation.RepeatPasswordMessage = "Repeat Password field isn't match with Password field";
                 isModelValid = false;
             }
-            if (String.IsNullOrEmpty(registrationModel.Email))
+            if (!_validationService.Validate(registrationModel.Email, ValidationTerms.NotEmpty))
             {
                 registerValidation.EmailMessage = "Email field can't be empty";
                 isModelValid = false;
             }
-            else
+            else if (!_validationService.Validate(registrationModel.Email, ValidationTerms.Email))
             {
-                String emailRegex = @"^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$";
-                if (!Regex.IsMatch(registrationModel.Email, emailRegex))
-                {
-                    registerValidation.EmailMessage = "Not valid email";
-                }
+                registerValidation.EmailMessage = "Not valid email";
+                isModelValid = false;
             }
             if (String.IsNullOrEmpty(registrationModel.RealName))
             {
@@ -124,16 +121,18 @@ namespace ASP_201MVC.Controllers
                 }
             }
 
-            if (!isModelValid)
+            if (isModelValid)
             {
                 String salt = _randomService.RandomString(16);
+                String confirmEmailCode = _randomService.ConfirmCode(6);
+                // отправляем код подтверждения
                 User user = new()
                 {
                     Id = Guid.NewGuid(),
                     Login = registrationModel.Login,
                     RealName = registrationModel.RealName,
                     Email = registrationModel.Email,
-                    EmailCode = _randomService.ConfirmCode(6),
+                    EmailCode = confirmEmailCode,
                     PasswordSalt = salt,
                     PasswordHash = _kdfService.GetDerivedKey(registrationModel.Password, salt),
                     Avatar = savedName,
@@ -141,10 +140,17 @@ namespace ASP_201MVC.Controllers
                     LastEnter = null
                 };
                 _dataContext.Users.Add(user);
+
+                // Если данные добавленны в БД, отправляем код подверждения на почту
+                // генерируем токен автоматческого подтверждения
                 var emailConfirmToken = _GenerateEmailConfirmToken(user);
-                _dataContext.EmailConfirmTokens.Add(emailConfirmToken);
-                _SendConfirmEmail(user, emailConfirmToken);
+
                 _dataContext.SaveChangesAsync();
+
+                _SendConfirmEmail(user, emailConfirmToken, "confirm_email");
+
+                _SendConfirmEmail(user, emailConfirmToken, "welcome_email");
+
                 return View(registrationModel);
             }
             else
@@ -158,10 +164,11 @@ namespace ASP_201MVC.Controllers
             return View("Registration");
         }
         private bool _SendConfirmEmail(Data.Entity.User user,
-                                        Data.Entity.EmailConfirmToken emailConfirmToken)
+                                        Data.Entity.EmailConfirmToken emailConfirmToken,
+                                        String type)
         {
             String confirmLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/User/ConfirmToken?token={emailConfirmToken.Id}";
-            return _emailService.Send("confirm_email",
+            return _emailService.Send(type,
                 new Models.Email.ConfirmEmailModel
                 {
                     Email = user.Email,
@@ -227,7 +234,7 @@ namespace ASP_201MVC.Controllers
                 user.EmailCode = _randomService.ConfirmCode(6);
                 var emailConfirmToken = _GenerateEmailConfirmToken(user);
                 _dataContext.SaveChangesAsync();
-                if (_SendConfirmEmail(user, emailConfirmToken))
+                if (_SendConfirmEmail(user, emailConfirmToken, "confirm_email"))
                     return "ok";
                 else
                     return "send error";

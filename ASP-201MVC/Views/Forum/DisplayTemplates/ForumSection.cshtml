@@ -1,0 +1,22 @@
+﻿@model ASP_201MVC.Models.Forum.ForumSectionViewModel
+
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+        <div class="col-md-2">
+            <img src="@Model.LogoUrl" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-10 d-flex flex-column">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Title</h5>
+                <p class="card-text">@Model.Description</p>
+                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        Розпочато: @Model.CreatedDt
+        Автор: <img src="@Model.AuthorAvatarUrl" style="max-width: 50px; max-height: 50px;" alt="Avatar"/>
+        @Model.AuthorName
+        <a asp-action="Sections" asp-route-id="@Model.UrlIdString">Перейти</a>
+    </div>
+</div>

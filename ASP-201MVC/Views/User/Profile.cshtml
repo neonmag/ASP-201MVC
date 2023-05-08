@@ -261,6 +261,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="resend-email-button">Надіслати код повторно</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="confirm-email-button">Confirm</button>
             </div>
@@ -276,6 +277,10 @@
         const confirmEmailButton = document.getElementById("confirm-email-button");
         if (confirmEmailButton) confirmEmailButton.addEventListener("click", confirmEmailButtonClick)
         else console.error("Element not found: 'confirm-email-button'")
+
+         const resendEmailButton = document.getElementById("resend-email-button");
+        if (resendEmailButton) resendEmailButton.addEventListener("click", resendButtonClick)
+        else console.error("Element not found: 'resend-email-button'")
     });
     function editClick(e) {
         const targetId = e.target.getAttribute("data-ref-field");
@@ -378,5 +383,16 @@
                     alert(j.data);
                 }
             });
+    }
+    function resendButtonClick()
+    {
+        window.fetch("/User/ResendConfirmEmail",
+      {
+          method: "PATCH"
+      }).then(r=> r.text()).then(t=>
+      {
+          console.log(t);
+      })
+       
     }
 </script>

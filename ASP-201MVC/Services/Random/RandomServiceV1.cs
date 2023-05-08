@@ -12,7 +12,7 @@ namespace ASP_201MVC.Services.Random
         {
 
             StringBuilder code = new StringBuilder(length);
-            Guid testId = new Guid();
+            Guid testId = Guid.NewGuid();
             for (int i = 0; i < length; i++)
             {
                 code.Append(testId.ToString()[random.Next(testId.ToString().Length)]);

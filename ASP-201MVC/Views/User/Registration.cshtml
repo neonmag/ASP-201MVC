@@ -2,33 +2,106 @@
 @using ASP_201MVC.Models.Home.User
 @{
     ViewData["Title"] = "Registration";
+    var registerValidation = ViewData["registerValidation"] as RegisterValidationModel;
 }
 
 <div>
     <h1 class="display-4">Registration of new user</h1>
 </div>
 <form method="post" asp-controller="User" asp-action="Register" enctype="multipart/form-data">
+    <!--Валидация способами Bootstrap (https://getbootstrap.com/docs/5.0/forms/validation/#server-side)
+        Обращаем внимание имеено на серверную валидацию:
+        1) Элементы формы (input) должны иметь стилевые классы
+        is-invalid - красный стиль, неправильное значение
+        is-valid - зеленый стиль, правильное значение
+        ни одного из этим классов - начальное состояние, без валидации
+        2) после элементов форсы добавляются блоки
+        <div class="valid-feedback">Message</div>
+        <div class="invalid-feedback">Message</div>
+        ни одного - стартовое состояние
+    -->
     <div class="form-group">
         <label asp-for="Login">Login</label>
-        <input type="text" class="form-control" asp-for="Login" aria-describedby="loginHelp" placeholder="Enter login">
+        <!--class="form-control" начальное состояние
+            (registerValidation is null)
+            class="form-control is-valid" позитивный результат валидации
+            (registerValidation.LogMessage is null)
+            class="form-control is-invalid" негативный результат валидации
+            (registerValidation.LogMessage is not null)
+        -->
+        <input type="text" asp-for="Login" class="form-control @(registerValidation is null
+                                                                            ? ""
+                                                                            : (registerValidation.LoginMessage is null
+                                                                            ? "is-valid"
+                                                                            : "is-invalid"))"
+               aria-describedby="loginHelp" placeholder="Enter login">
+        @if (registerValidation?.LoginMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registerValidation.LoginMessage
+            </div>
+        }
     </div>
     <div class="form-group">
         <label asp-for="Password">Password</label>
-        <input type="password" class="form-control" asp-for="Password" placeholder="Password">
+        <input type="password" asp-for="Password" class="form-control @(registerValidation is null
+                                                                            ? ""
+                                                                            : (registerValidation.PasswordMessage is null
+                                                                            ? "is-valid"
+                                                                            : "is-invalid"))"
+               aria-describedby="loginHelp" placeholder="Password">
+        @if (registerValidation?.PasswordMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registerValidation.PasswordMessage
+            </div>
+        }
     </div>
     <div class="form-group">
         <label asp-for="RepeatPassword">Repeat Password</label>
-        <input type="password" class="form-control" asp-for="RepeatPassword" placeholder="Repeat Password">
+        <input type="password" asp-for="RepeatPassword" class="form-control @(registerValidation is null
+                                                                            ? ""
+                                                                            : (registerValidation.RepeatPasswordMessage is null
+                                                                            ? "is-valid"
+                                                                            : "is-invalid"))"
+               placeholder="Repeat Password">
+        @if (registerValidation?.RepeatPasswordMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registerValidation.RepeatPasswordMessage
+            </div>
+        }
     </div>
     <div class="form-group">
         <label asp-for="Email">Email address</label>
-        <input type="email" class="form-control" asp-for="Email" placeholder="name@example.com">
+        <input type="email" asp-for="Email" class="form-control @(registerValidation is null
+                                                                            ? ""
+                                                                            : (registerValidation.EmailMessage is null
+                                                                            ? "is-valid"
+                                                                            : "is-invalid"))"
+               placeholder="name@example.com">
+        @if (registerValidation?.EmailMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registerValidation.EmailMessage
+            </div>
+        }
     </div>
     <div class="form-group">
         <label asp-for="RealName">Name</label>
-        <input type="text" class="form-control" asp-for="RealName" aria-describedby="nameHelp" placeholder="Enter your name">
+        <input type="text" asp-for="RealName" class="form-control @(registerValidation is null
+                                                                            ? ""
+                                                                            : (registerValidation.RealNameMessage is null
+                                                                            ? "is-valid"
+                                                                            : "is-invalid"))"
+               aria-describedby="nameHelp" placeholder="Enter your name">
+        @if (registerValidation?.RealNameMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registerValidation.RealNameMessage
+            </div>
+        }
     </div>
-    <br />
     <div class="mb-3">
         <label asp-for="Avatar" class="form-label">Upload avatar</label>
         <input asp-for="Avatar" class="form-control" type="file">
@@ -41,7 +114,6 @@
 {
     // была передача данных
     var registrationModel = ViewData["registrationModel"] as RegistrationModel;
-    var registerValidation = ViewData["registerValidation"] as RegisterValidationModel;
     if (Convert.ToBoolean(ViewData["isModelValid"]) == false)
     {
         foreach (var item in registerValidation)

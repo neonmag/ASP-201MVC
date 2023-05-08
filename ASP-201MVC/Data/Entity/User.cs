@@ -16,6 +16,7 @@
         public Boolean IsEmailPublic { get; set; }
         public Boolean isRealNamePublic { get; set; }
         public Boolean IsDateTimePublic { get; set; }
+        public Boolean IsRealNamePublic { get; set; }
 
     }
 }

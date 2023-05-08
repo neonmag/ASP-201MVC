@@ -271,6 +271,7 @@ namespace ASP_201MVC.Controllers
                         model.IsPersonal = true;
                     }
                 }
+                _logger.LogInformation("Login: " + model.Login + "\n" + "Email: " + model.Email + "\nIsAuth?" + model.IsEmailConfirmed);
                 return View(model);
             }
             else return NotFound();

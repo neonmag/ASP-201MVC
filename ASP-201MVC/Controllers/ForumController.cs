@@ -21,6 +21,13 @@ namespace ASP_201MVC.Controllers
         private int _counter = 0;
 
         private int Counter { get => _counter++; set => _counter = value; }
+        private void CheckInvalidForm(string errorMessage, string savedTitle, string savedDescription)
+        {
+            HttpContext.Session.SetInt32("IsMessagePositive", 0);
+            HttpContext.Session.SetString("CreateSectionMessage", errorMessage);
+            HttpContext.Session.SetString("SavedTitle", savedTitle ?? String.Empty);
+            HttpContext.Session.SetString("SavedDescription", savedDescription ?? String.Empty);
+        }
         public IActionResult Index()
         {
             ForumIndexModel model = new()
@@ -53,7 +60,7 @@ namespace ASP_201MVC.Controllers
                 HttpContext.Session.Remove("CreateSectionMessage");
                 model.CreateMessage = message;
                 model.IsMessagePositive = HttpContext.Session.GetInt32("IsMessagePositive") == 1;
-                if(model.IsMessagePositive == false)
+                if (model.IsMessagePositive == false)
                 {
                     model.FormModel = new()
                     {
@@ -71,45 +78,39 @@ namespace ASP_201MVC.Controllers
         [HttpPost]
         public RedirectToActionResult CreateSection(ForumSectionModel formModel)
         {
-            _logger.LogInformation("Title: {t}, Description: {d}", formModel.Title, formModel.Description);
-            if(!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty))
+            _logger.LogInformation("Title: {t}, Description: {d}",
+                formModel.Title, formModel.Description);
+
+            if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty))
             {
-                HttpContext.Session.SetString("CreateSectionMessage","Name cannot be empty");
-                HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
-                HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+                CheckInvalidForm("Name can't be empty", formModel.Title, formModel.Description);
             }
-            else if(!_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
+            else if (!_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
             {
-                HttpContext.Session.SetString("CreateSectionMessage", "Description cannot be empty");
-                HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                CheckInvalidForm("Description can't be empty", formModel.Title, formModel.Description);
             }
             else
             {
-                Guid userId;
                 try
                 {
-                     userId = Guid.Parse(
-                        HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value);
+                    Guid userId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value);
                     _dataContext.Sections.Add(new()
                     {
                         Id = Guid.NewGuid(),
                         Title = formModel.Title,
                         Description = formModel.Description,
-                        CreatedDt = DateTime.Now,
-                        AuthorId = userId
+                        CreatedDt = DateTime.Now
                     });
                     _dataContext.SaveChanges();
-                    HttpContext.Session.SetString("CreateSectionMessage", "ALL OK");
                     HttpContext.Session.SetInt32("IsMessagePositive", 1);
+                    HttpContext.Session.SetString("CreateSectionMessage",
+                        "Added successfully");
                 }
                 catch
                 {
-                    HttpContext.Session.SetString("CreateSectionMessage", "NOT OK");
-                    HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                    HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
-                    HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+                    CheckInvalidForm("Authorization denied", formModel.Title, formModel.Description);
                 }
+
             }
             return RedirectToAction(nameof(Index));
         }
@@ -122,7 +123,7 @@ namespace ASP_201MVC.Controllers
                 Themes = _dataContext
                 .Themes.Where(t => t.Deleted == null && t.SectionId == Guid.Parse(id))
                 .Select(t => new ForumThemeViewModel()
-                    {
+                {
                     Title = t.Title,
                     Description = t.Description,
                     CreatedDtString = DateTime.Today == t.CreatedDt.Date
@@ -157,15 +158,11 @@ namespace ASP_201MVC.Controllers
         {
             if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty))
             {
-                HttpContext.Session.SetString("CreateSectionMessage", "Name cannot be empty");
-                HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
-                HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+                CheckInvalidForm("Name can't be empty", formModel.Title, formModel.Description);
             }
             else if (!_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
             {
-                HttpContext.Session.SetString("CreateSectionMessage", "Description cannot be empty");
-                HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                CheckInvalidForm("Description can't be empty", formModel.Title, formModel.Description);
             }
             else
             {
@@ -189,14 +186,12 @@ namespace ASP_201MVC.Controllers
                 }
                 catch
                 {
-                    HttpContext.Session.SetString("CreateSectionMessage", "NOT OK");
-                    HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                    HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
-                    HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+                    CheckInvalidForm("Authorization denied", formModel.Title, formModel.Description);
                 }
             }
 
-            return RedirectToAction(nameof(Sections), new {id = formModel.SectionId});
+            return RedirectToAction(nameof(Sections), new { id = formModel.SectionId });
         }
+
     }
 }

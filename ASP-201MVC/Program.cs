@@ -9,6 +9,7 @@ using ASP_201MVC.Services.Validation;
 using ASP_201MVC.Services.Email;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
+using ASP_201MVC.Services.Transliterate;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ builder.Services.AddSingleton<IRandomService, RandomServiceV1>();
 builder.Services.AddSingleton<IKdfService, HashKdService>();
 builder.Services.AddSingleton<IValidationService, ValidationServiceV1>();
 builder.Services.AddSingleton<IEmailService, GmailService>();
+builder.Services.AddSingleton<ITransliterationService, TransliterationServiceUkr>();
 
 //builder.Services.AddDbContext<DataContext>(options =>
 //    options.UseSqlServer(

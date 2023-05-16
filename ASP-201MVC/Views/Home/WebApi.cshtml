@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Web API";
+}
+
+<div class="text-center">
+    <h1 class="display-4">@ViewData["Title"]</h1>
+</div>
+
+<p>
+    API - Application Program Interface - интерфейс взаимодействия программы и приложения
+    Программа (в данном контексте) - определенный информационный "центр", который управляет
+    данными - сохраняет и распространяет между приложениями<br />
+    Приложение (Application) - приложение, которое для своей роботы использует данные,
+    предоставленные программой.<br />
+    Интерфейс - способ взаимодействия - набор правил информационного обмена
+</p>
+<p>
+    Приставка "Web" говориит о использовании HTTP протокола.
+    Такие API базируются на возможностях HTTP по передачи данных:
+</p>
+<ul>
+    <li>Вони не мають представлення, дані від них передаються у формі JSON</li>
+    <li>
+        Вони мають постійну адресу, а різні методу класу викликаються в залежності
+        від методу запиту (далі ctr - ім'я контроллеру).<br />
+        MVC: GET /ctr/page1,  GET /ctr/page2,  GET /ctr/page3
+        <br />
+        API: GET /ctr,  POST /ctr,  PUT /ctr
+    </li>
+    <li>
+        Тип повернення методів як правило відповідає типам даних (об'єктів),
+        для узагальнення вживається <code>object</code>
+    </li>
+    <li>
+        Redirect не є необхідним для POST запитів (як у MVC), тут всі методи
+        фактично рівнозначні
+    </li>
+</ul>
+
+<div class="card col-6">
+    <div class="card-body">
+        <div class="row">
+            <div class="col col-3">
+                <button class="btn btn-primary" id="get-button" data-send="GetData">GET</button>
+                <button class="btn btn-secondary" id="post-button" data-send="PostData">POST</button>
+                <button class="btn btn-danger" id="link-button" data-send="LinkData">LINK</button>
+            </div>
+            <div class="col col-3">
+                <p id="request-result"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded",()=>{
+        const getButton = document.getElementById("get-button");
+        if(getButton) getButton.addEventListener('click', getButtonClick);
+        else console.error("'get-button' not found");
+
+        const postButton = document.getElementById("post-button");
+        if (postButton) postButton.addEventListener('click', postButtonClick);
+        else console.error("'post-button' not found");
+
+        const linkButton = document.getElementById("link-button");
+        if (linkButton) linkButton.addEventListener('click', linkButtonClick);
+        else console.error("'link-button' not found");
+    });
+    function getButtonClick(e)
+    {
+        const data = e.target.getAttribute("data-send");
+        window.fetch("/api/rates?data=" + data)
+        .then(r => r.json())
+        .then(j => {
+            document.getElementById("request-result").innerText = j.result;
+        });
+    }
+    function postButtonClick(e) {
+        const data = e.target.getAttribute("data-send");
+        window.fetch("/api/rates", {
+            method: "POST",
+            body: JSON.stringify({'data': data}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(r => r.json())
+            .then(j => {
+                document.getElementById("request-result").innerText = j.result;
+            });
+    }
+    function linkButtonClick(e) {
+        const data = e.target.getAttribute("data-send");
+        window.fetch("/api/rates", {
+            method: "LINK",
+            body: JSON.stringify({ 'data': data }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(r => r.json())
+            .then(j => {
+                document.getElementById("request-result").innerText = j.result;
+            });
+    }
+</script>

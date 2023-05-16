@@ -9,5 +9,7 @@
         public Guid AuthorId { get; set; }
         public DateTime CreatedDt { get; set; }
         public DateTime? Deleted { get; set; }
+
+        public User Author { get; set; } = null!;
     }
 }

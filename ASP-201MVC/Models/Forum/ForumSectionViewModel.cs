@@ -10,7 +10,11 @@ namespace ASP_201MVC.Models.Forum
         public String LogoUrl { get; set; } = null!;
         public String CreatedDt { get; set; } = null!;
         public String UrlIdString { get; set; } = null!;
+        public String IdString { get; set; } = null!;
         public String AuthorName { get; set; } = null!;
         public String AuthorAvatarUrl { get; set; } = null!;
+
+        public int LikesCount { get; set; }
+        public int DislikesCount { get; set; }
     }
 }

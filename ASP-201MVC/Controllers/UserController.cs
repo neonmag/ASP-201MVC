@@ -145,7 +145,7 @@ namespace ASP_201MVC.Controllers
                 // генерируем токен автоматческого подтверждения
                 var emailConfirmToken = _GenerateEmailConfirmToken(user);
 
-                _dataContext.SaveChangesAsync();
+                _dataContext.SaveChanges();
 
                 _SendConfirmEmail(user, emailConfirmToken, "confirm_email");
 

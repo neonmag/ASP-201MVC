@@ -45,7 +45,10 @@ namespace ASP_201MVC.Controllers
             return View();
         }
 
-
+        public ViewResult WebApi()
+        {
+            return View();
+        }
         public ViewResult Sessions([FromQuery(Name = "session-attr")] String? sessionAttr)
         {
             if (sessionAttr is not null)

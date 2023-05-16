@@ -1,9 +1,9 @@
 ﻿@model ASP_201MVC.Models.Forum.ForumSectionViewModel
 
-<div class="card mb-3" style="max-width: 540px;">
+<div class="card mb-3">
     <div class="row g-0">
         <div class="col-md-2">
-            <img src="@Model.LogoUrl" class="img-fluid rounded-start" alt="...">
+            <img src="@Model.LogoUrl" class="img-fluid rounded-start" alt="Logo">
         </div>
         <div class="col-md-10 d-flex flex-column">
             <div class="card-body">
@@ -11,12 +11,33 @@
                 <p class="card-text">@Model.Description</p>
                 <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
             </div>
+            <div class="card-footer d-flex align-items-center">
+                <div class="mx-3">
+                    Розпочато: <br />
+                    @Model.CreatedDt
+                </div>
+                <img src="@Model.AuthorAvatarUrl" style="max-width:50px; max-height:50px" alt="Avatar" />
+                <div>
+                    Автор:<br />
+                    @Model.AuthorName
+                </div>
+
+                <span class="g-color-gray-dark-v4"
+                      style="margin-left: 3em"
+                      role="button"
+                      data-rating="@Model.IdString" data-rating-value="1">
+                    <i class="bi-hand-thumbs-up"></i>
+                    @Model.LikesCount
+                </span>
+                <span class="g-color-gray-dark-v4 mx-3"
+                      role="button"
+                      data-rating="@Model.IdString" data-rating-value="-1">
+                    <i class="bi-hand-thumbs-down"></i>
+                    @Model.DislikesCount
+                </span>
+
+                <a class="ms-auto" asp-action="Sections" asp-route-id="@Model.UrlIdString">Перейти</a>
+            </div>
         </div>
-    </div>
-    <div class="card-footer">
-        Розпочато: @Model.CreatedDt
-        Автор: <img src="@Model.AuthorAvatarUrl" style="max-width: 50px; max-height: 50px;" alt="Avatar"/>
-        @Model.AuthorName
-        <a asp-action="Sections" asp-route-id="@Model.UrlIdString">Перейти</a>
     </div>
 </div>

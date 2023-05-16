@@ -23,7 +23,15 @@ namespace ASP_201MVC.Data
 			modelBuilder.Entity<Entity.Section>()
 				.HasOne(s => s.Author)
 				.WithMany()
-				.HasForeignKey(s => s.AuthorId);
-		}
+				.HasForeignKey(s => s.AuthorId); 
+			modelBuilder.Entity<Entity.Theme>()
+                .HasOne(s => s.Author)
+                .WithMany()
+                .HasForeignKey(s => s.AuthorId);
+			modelBuilder.Entity<Entity.Section>()
+                .HasMany(s => s.RateList)
+                .WithOne()
+                .HasForeignKey(r => r.ItemId);
+        }
 	}
 }

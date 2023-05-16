@@ -10,7 +10,7 @@
 
 @foreach(var Theme in Model.Themes)
 {
-    <p>@Theme.Title, @Theme.Description</p>
+    @Html.DisplayFor(m=>Theme, "ForumTheme")
 }
 
 @if(Model.UserCanCreate)
@@ -32,6 +32,13 @@
                                                  placeholder="Введіть назву розділу" />
                 </div>
                 <div class="form-group">
+                    <label for="theme-title">Картинка</label>
+                    <input type="text" id="theme-title" name="theme-title"
+                                                 class="form-control"
+                       value="@(Model.FormModel is null?"":Model.FormModel.Title)"
+                                                 placeholder="Введіть назву розділу" />
+                </div>
+                <div class="form-group">
                     <label for="theme-description"  
                                                  class="form-label">Опис</label>
                 <textarea class="form-control" rows="3" id="theme-description" name="theme-description"
@@ -43,3 +50,4 @@
         </div>
     </div>
 }
+

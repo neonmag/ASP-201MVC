@@ -53,7 +53,8 @@ namespace ASP_201MVC.Controllers
                     Description = s.Description,
                     IdString = s.Id.ToString(),
                     LogoUrl = $"/img/logos/section{Counter}.png",
-                    CreatedDt = DateTime.Today == s.CreatedDt.Date ?
+                    CreatedDt = DateTime.Today == s.CreatedDt.Date
+                    ?
                     "Сьогодні: " + s.CreatedDt.ToString("HH:mm")
                     : s.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     UrlIdString = s.UrlId is null ? s.Id.ToString() : s.UrlId,
@@ -169,6 +170,7 @@ namespace ASP_201MVC.Controllers
                     : t.CreatedDt.ToString("dd.MM.yyy HH:mm"),
                     UrlIdString = t.Id.ToString(),
                     SectionId = t.SectionId.ToString(),
+                    ProfileCreateDt = t.CreatedDt,
                     AuthorName = t.Author.IsRealNamePublic
                                    ? t.Author.RealName
                                    : t.Author.Login,

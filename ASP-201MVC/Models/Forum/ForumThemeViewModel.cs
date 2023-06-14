@@ -11,6 +11,7 @@
 
         public String AuthorName { get; set; } = null!;
         public String AuthorAvatarUrl { get; set; } = null!;
+        public DateTime ProfileCreateDt { get; set; }
 
         public int LikesCount { get; set; }
         public int DislikesCount { get; set; }

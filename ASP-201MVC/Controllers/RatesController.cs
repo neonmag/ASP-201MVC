@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ASP_201MVC.Data;
 using ASP_201MVC.Data.Entity;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 
 namespace ASP_201MVC.Controllers
 {
@@ -21,6 +22,49 @@ namespace ASP_201MVC.Controllers
         {
             return new { result = $"Запит оброблено методом  GET {data}" };
         }
+        [HttpDelete]
+        public object Delete([FromBody] BodyData data)
+        {
+            int statusCode;
+            String result;
+
+            if (data == null || data.Data == null || data.ItemId == null || data.UserId == null)
+            {
+                statusCode = StatusCodes.Status400BadRequest;
+                result = $"Не всі дані передані: Data={data.Data} ItemId={data.ItemId} UserId={data.UserId}";
+            }
+            else
+            {
+                try
+                {
+                    Guid itemId = Guid.Parse(data.ItemId);
+                    Guid userId = Guid.Parse(data.UserId);
+                    int rating = Convert.ToInt32(data.Data);
+                    Rate? rate = _dataContext.Rates.FirstOrDefault(r => r.UserId == userId && r.ItemId == itemId);
+                    if (rate is not null)
+                    {
+                        _dataContext.Rates.Remove(rate);
+                        _dataContext.SaveChanges();
+                        statusCode = StatusCodes.Status200OK;
+                        result = $"Всі дані видалено: Data ={data.Data}ItemId ={data.ItemId} UserId ={data.UserId}";
+                    }
+                    else
+                    {
+                        statusCode = StatusCodes.Status406NotAcceptable;
+                        result = $"Всі дані відсутні: Data ={data.Data}ItemId ={data.ItemId} UserId ={data.UserId}";
+                       
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    statusCode = StatusCodes.Status400BadRequest;
+                    result = $"Не всі дані передані({ex.Message}): Data={data.Data} ItemId={data.ItemId} UserId={data.UserId}";
+                }
+            }
+            HttpContext.Response.StatusCode = statusCode;
+            return new { result };
+        }
         [HttpPost]
         public object Post([FromBody] BodyData data)
         {
@@ -39,10 +83,22 @@ namespace ASP_201MVC.Controllers
                     Guid itemId = Guid.Parse(data.ItemId);
                     Guid userId = Guid.Parse(data.UserId);
                     int rating = Convert.ToInt32(data.Data);
-                    if(_dataContext.Rates.Any(r => r.UserId == userId && r.ItemId == itemId))
+                    Rate? rate = _dataContext.Rates.FirstOrDefault(r => r.UserId == userId && r.ItemId == itemId);
+
+                    if (rate is not null)
                     {
-                        statusCode = StatusCodes.Status406NotAcceptable;
-                        result = $"Всі дані передані: Data ={data.Data}ItemId ={data.ItemId} UserId ={data.UserId}";
+                        if(rate.Rating == rating)
+                        {
+                            statusCode = StatusCodes.Status406NotAcceptable;
+                            result = $"Всі дані передані: Data ={data.Data}ItemId ={data.ItemId} UserId ={data.UserId}";
+                        }
+                        else
+                        {
+                            rate.Rating = rating;
+                            _dataContext.SaveChanges();
+                            statusCode = StatusCodes.Status202Accepted;
+                            result = $"Всі дані оновлено: Data ={data.Data}ItemId ={data.ItemId} UserId ={data.UserId}";
+                        }
                     }
                     else
                     {

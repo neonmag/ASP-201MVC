@@ -16,5 +16,6 @@ namespace ASP_201MVC.Models.Forum
 
         public int LikesCount { get; set; }
         public int DislikesCount { get; set; }
+        public int? GivenRating {get;set;}
     }
 }

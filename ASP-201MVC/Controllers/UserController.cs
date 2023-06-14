@@ -342,6 +342,7 @@ namespace ASP_201MVC.Controllers
                         if (_validationService.Validate(model.Value, ValidationTerms.Email))
                         {
                             user.Email = model.Value;
+                            _SendConfirmEmail(user, _GenerateEmailConfirmToken(user), "confirm_email");
                             _dataContext.SaveChanges();
                         }
                         else throw new Exception(

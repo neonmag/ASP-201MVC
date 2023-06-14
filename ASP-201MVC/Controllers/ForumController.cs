@@ -36,6 +36,8 @@ namespace ASP_201MVC.Controllers
         }
         public IActionResult Index()
         {
+            Counter = 0;
+            String? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             ForumIndexModel model = new()
             {
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
@@ -60,7 +62,9 @@ namespace ASP_201MVC.Controllers
                     ? "/avatars/no-avatar.png"
                     : $"/avatars/{s.Author.Avatar}",
                     LikesCount = s.RateList.Count(r => r.Rating > 0),
-                    DislikesCount = s.RateList.Count(r => r.Rating < 0)
+                    DislikesCount = s.RateList.Count(r => r.Rating < 0),
+                    GivenRating = userId == null? null
+                    : s.RateList.FirstOrDefault(r => r.UserId == Guid.Parse(userId))?.Rating
                 }).ToList()
             };
 
@@ -144,6 +148,8 @@ namespace ASP_201MVC.Controllers
             {
                 sectionId = _dataContext.Sections.First(s => s.UrlId == id).Id;
             }
+            String? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
             ForumSectionsModel model = new()
             {
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
@@ -151,7 +157,9 @@ namespace ASP_201MVC.Controllers
                 Themes = _dataContext
                 .Themes
                 .Include(t => t.Author)
+                .Include(t => t.RateList)
                 .Where(t => t.Deleted == null && t.SectionId == sectionId)
+                .AsEnumerable()
                 .Select(t => new ForumThemeViewModel()
                 {
                     Title = t.Title,
@@ -164,7 +172,11 @@ namespace ASP_201MVC.Controllers
                     AuthorName = t.Author.IsRealNamePublic
                                    ? t.Author.RealName
                                    : t.Author.Login,
-                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}"
+                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}",
+                    LikesCount = t.RateList.Count(r => r.Rating > 0),
+                    DislikesCount = t.RateList.Count(r => r.Rating < 0),
+                    GivenRating = userId == null ? null
+                    : t.RateList.FirstOrDefault(r => r.UserId == Guid.Parse(userId))?.Rating
                 }).ToList()
             };
             if (HttpContext.Session.GetString("CreateSectionMessage") is String message)

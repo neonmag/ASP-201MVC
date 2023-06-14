@@ -25,14 +25,31 @@
                 <span class="g-color-gray-dark-v4"
                       style="margin-left: 3em"
                       role="button"
-                      data-rating="@Model.IdString" data-rating-value="1">
-                    <i class="bi-hand-thumbs-up"></i>
+                      data-rating="@Model.IdString" data-rating-value="1"
+                      data-rating-given="@(Model.GivenRating == 1? "true": "false")">
+                      @if(Model.GivenRating == 1)
+                      {
+                        <i class="bi-hand-thumbs-up-fill"></i>
+                      }
+                      else
+                      {
+                        <i class="bi-hand-thumbs-up"></i>
+                      }
                     @Model.LikesCount
                 </span>
                 <span class="g-color-gray-dark-v4 mx-3"
                       role="button"
-                      data-rating="@Model.IdString" data-rating-value="-1">
-                    <i class="bi-hand-thumbs-down"></i>
+                      data-rating="@Model.IdString" data-rating-value="-1"
+                      data-rating-given="@(Model.GivenRating == -1? "true": "false")">
+                      @if(Model.GivenRating == -1)
+                      {
+                        <i class="bi-hand-thumbs-down-fill"></i>
+
+                      }
+                      else
+                      {
+                        <i class="bi-hand-thumbs-down"></i>
+                      }
                     @Model.DislikesCount
                 </span>
 
